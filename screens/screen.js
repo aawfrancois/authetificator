@@ -3,7 +3,6 @@ import {StyleSheet, Text, View, Alert, head, Button} from 'react-native';
 import {Constants, BarCodeScanner, Permissions} from 'expo';
 
 
-
 export class ModalScreen extends React.Component {
 
     state = {
@@ -21,25 +20,26 @@ export class ModalScreen extends React.Component {
         });
     };
 
-
-
     _handleBarCodeRead = ({data}) => {
-        const {state, goBack } = this.props.navigation
+        const {state, goBack} = this.props.navigation
         Alert.alert(
             'Scan successful!',
             JSON.stringify(data)
         );
 
-        let array =  data.match(/^otpauth:\/\/totp\/(.+)\?secret=(.+)&issuer=(.*)/);
-        label = array[1];
-        secret =  array[2];
-        issuer =  array[3];
-        this.setState({
-            label : label,
-            secret : secret,
-            issuer : issuer
-        });
+        let array = data.match(/^otpauth:\/\/totp\/(.+)\?secret=(.+)&issuer=(.*)/);
+        label = array[1]
+        secret = array[2]
+        issuer = array[3]
 
+        const obj = {
+            label,
+            secret,
+            issuer
+        };
+
+        state.params.add(obj);
+        this.props.navigation.goBack();
 
     };
 
@@ -55,6 +55,7 @@ export class ModalScreen extends React.Component {
                             style={{height: 200, width: 200}}
                         />
                 }
+                <Text> {this.state.secret} {this.state.label} {this.state.issuer} </Text>
             </View>
         );
     }

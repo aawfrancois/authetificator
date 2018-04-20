@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, head } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView} from 'react-native';
 
 
 
@@ -9,28 +9,52 @@ export class MainStack extends React.Component {
         title: 'Authentificator',
     };
 
+    constructor() {
+        super();
+        this.state = {
+            listing: []
+        };
+    }
 
-    render() {
+    _add = obj => {
+        this.setState({listing:[...this.state.listing, obj]});
+    };
+
+
+    render()
+    {
+        const list = this.state.listing.map((item , id ) => {
+            return (
+                <View  key = {id}>
+                    <Text style={styles.ListText}>
+                        {item.label}
+                        {item.secret}
+                        {item.issuer}
+                    </Text>
+                </View>
+            )
+        })
+
         return (
             <View style={styles.container}>
                 <TouchableOpacity
-                    onPress={() => this.props.navigation.navigate('MyModal')}
                     style={styles.buttonAdd}
+                    onPress={() =>
+                        this.props.navigation.navigate("MyModal", {
+                            add: this._add
+                        })
+                    }
                 >
-                    <Text> Add </Text>
+                    <Text> ADD </Text>
                 </TouchableOpacity>
-                <TouchableOpacity
-                    style={styles.buttonClear}
-                >
-                    <Text> Clear </Text>
+                <TouchableOpacity style={styles.buttonClear} onPress={this.clear}>
+                    <Text> CLEAR</Text>
                 </TouchableOpacity>
-                {/*<View style={[styles.countContainer]}>
-                 <Text style={[styles.countText]}>
-                 { this.state.count !== 0 ? this.state.count : null}
-                 </Text>
-                 </View>*/}
+                <ScrollView>{list}</ScrollView>
+
+
             </View>
-        )
+        );
     }
 }
 
@@ -57,5 +81,12 @@ const styles = StyleSheet.create({
     },
     countText: {
         color: '#FF00FF'
+    },
+    ListText: {
+        alignItems: "center",
+        color: '#000000',
+        backgroundColor: "#ffff66",
+        marginTop : 10,
+        padding: 10
     }
 });
