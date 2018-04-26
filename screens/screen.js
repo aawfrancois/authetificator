@@ -20,7 +20,7 @@ export class ModalScreen extends React.Component {
         });
     };
 
-    _handleBarCodeRead = ({data}) => {
+    _handleBarCodeRead = ({ type, data }) => {
         const {state, goBack} = this.props.navigation
         Alert.alert(
             'Scan successful!',

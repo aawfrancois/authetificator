@@ -1,6 +1,6 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView} from 'react-native';
-
+import {StyleSheet, Text, View, TouchableOpacity, ScrollView, AsyncStorage} from 'react-native';
+import  _  from 'lodash';
 
 
 export class MainStack extends React.Component {
@@ -16,16 +16,62 @@ export class MainStack extends React.Component {
         };
     }
 
+    async componentWillMount(){
+        try {
+            const result = await AsyncStorage.getItem('listing')
+            if (result) {
+                list  = JSON.parse(result) ;
+                this.setState({listing:JSON.parse(result)});
+            }
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+
+    async pushItem(list){
+        try {
+            alert(list);
+            await AsyncStorage.setItem('listing',list);
+        } catch (error) {
+        }
+    }
+
     _add = obj => {
-        this.setState({listing:[...this.state.listing, obj]});
+        if(_.some(this.state.listing, obj )){
+            alert(`Sorry the entry ${obj.label} already exist`)
+
+        } else {
+            this.setState({listing:[...this.state.listing, obj]}, () => {
+                list = JSON.stringify(this.state.listing)
+                console.log(list);
+                this.pushItem(list)
+
+            });
+
+
+        }
+
+    };
+
+    async removeItem(){
+        try {
+            await AsyncStorage.removeItem('listing');
+        } catch (error) {
+        }
+    }
+
+    clear = () => {
+        this.setState({listing:[]});
+        this.removeItem();
+        console.log("clear");
     };
 
 
-    render()
-    {
-        const list = this.state.listing.map((item , id ) => {
+    render() {
+        const list = this.state.listing.map((item, id) => {
             return (
-                <View  key = {id}>
+                <View key={id}>
                     <Text style={styles.ListText}>
                         {item.label}
                         {item.secret}
@@ -86,7 +132,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         color: '#000000',
         backgroundColor: "#ffff66",
-        marginTop : 10,
+        marginTop: 10,
         padding: 10
     }
 });
