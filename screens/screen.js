@@ -1,7 +1,7 @@
 import React from 'react';
-import { StyleSheet, Text, View, Alert, head, Button } from 'react-native';
-import { Constants, BarCodeScanner, Permissions } from 'expo';
-import { connect } from 'react-redux';
+import {Platform, StyleSheet, Text, View, Alert, head, Button} from 'react-native';
+import {Constants, BarCodeScanner, Permissions} from 'expo';
+import {connect} from 'react-redux';
 import  _  from 'lodash';
 
 
@@ -12,35 +12,40 @@ class ModalScreen extends React.Component {
     };
 
     async componentWillMount() {
-        const { status } = await Permissions.askAsync(Permissions.CAMERA);
+        const {status} = await Permissions.askAsync(Permissions.CAMERA);
         this.setState({hasCameraPermission: status === 'granted'});
     }
 
-    _handleBarCodeRead = ({ type, data }) => {
-        Alert.alert(
-            'Scan successful!',
-            JSON.stringify(data)
-        );
+    _handleBarCodeRead = ({type, data}) => {
+
 
         let array = data.match(/^otpauth:\/\/totp\/(.+)\?secret=(.+)&issuer=(.*)/);
-        label = array[1]
-        secret = array[2]
-        issuer = array[3]
-
-        const obj = {
-            label,
-            secret,
-            issuer
-        };
-
-        if(_.some(this.props.listing, obj )){
-            alert(`Sorry the entry ${obj.label} already exist`)
-
+        if (!array) {
+            Alert.alert(
+                'Scan not possible!!  Wrong Type!! ',
+            );
         } else {
-            this.props.dispatch({ type: 'ADD', data: obj })
+
+            label = array[1]
+            secret = array[2]
+            issuer = array[3]
+
+            const obj = {
+                label,
+                secret,
+                issuer
+            };
+
+            if (_.some(this.props.listing, obj)) {
+                alert(`Sorry the entry ${obj.label} already exist`)
+
+            } else {
+                this.props.dispatch({type: 'ADD', data: obj})
+            }
 
         }
         this.props.navigation.goBack();
+
 
     };
 
@@ -62,8 +67,6 @@ class ModalScreen extends React.Component {
     }
 }
 
-
-
 function mapStateToProps(state) {
     return {
         listing: state.listing
@@ -78,7 +81,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         paddingTop: Constants.statusBarHeight,
-        backgroundColor: '#ecf0f1',
+        backgroundColor: Platform.OS === 'ios' ? '#f4d5bf' : '#e6e6fa',
     },
     buttonAdd: {
         alignItems: 'center',

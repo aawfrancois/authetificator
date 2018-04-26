@@ -1,7 +1,7 @@
 import React from 'react';
-import {StyleSheet, Text, View, TouchableOpacity, ScrollView, AsyncStorage} from 'react-native';
+import { Platform, StyleSheet, Text, View, TouchableOpacity, ScrollView, AsyncStorage } from 'react-native';
 import  _  from 'lodash';
-import { connect } from 'react-redux'
+import {connect} from 'react-redux'
 import ModalScreen from './screen'
 
 
@@ -11,27 +11,27 @@ class MainStack extends React.Component {
         title: 'Authentificator',
     };
 
-    async componentWillMount(){
+    async componentWillMount() {
         try {
             const result = await AsyncStorage.getItem('listing')
             if (result) {
-                list  = JSON.parse(result) ;
-                this.setState({listing:JSON.parse(result)});
+                list = JSON.parse(result);
+                this.setState({listing: JSON.parse(result)});
             }
         } catch (e) {
             console.log(e);
         }
     }
 
-    async pushItem(list){
+    async pushItem(list) {
         try {
             alert(list);
-            await AsyncStorage.setItem('listing',list);
+            await AsyncStorage.setItem('listing', list);
         } catch (error) {
         }
     }
 
-    async removeItem(){
+    async removeItem() {
         try {
             await AsyncStorage.removeItem('listing');
         } catch (error) {
@@ -39,7 +39,7 @@ class MainStack extends React.Component {
     }
 
     clear = () => {
-       this.props.dispatch({ type: 'CLEAR' })
+        this.props.dispatch({type: 'CLEAR'})
         this.removeItem();
         console.log("clear");
     };
@@ -77,7 +77,8 @@ class MainStack extends React.Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingHorizontal: 10
+        paddingHorizontal: 10,
+        backgroundColor: Platform.OS === 'ios' ? '#f4d5bf' : '#e6e6fa',
     },
     buttonAdd: {
         alignItems: 'center',
