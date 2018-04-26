@@ -1,27 +1,22 @@
 import React from 'react';
-import {StyleSheet, Text, View, Alert, head, Button} from 'react-native';
-import {Constants, BarCodeScanner, Permissions} from 'expo';
+import { StyleSheet, Text, View, Alert, head, Button } from 'react-native';
+import { Constants, BarCodeScanner, Permissions } from 'expo';
+import { connect } from 'react-redux';
+import  _  from 'lodash';
 
 
-export class ModalScreen extends React.Component {
+class ModalScreen extends React.Component {
 
     state = {
         hasCameraPermission: null
     };
 
-    componentDidMount() {
-        this._requestCameraPermission();
+    async componentWillMount() {
+        const { status } = await Permissions.askAsync(Permissions.CAMERA);
+        this.setState({hasCameraPermission: status === 'granted'});
     }
 
-    _requestCameraPermission = async () => {
-        const {status} = await Permissions.askAsync(Permissions.CAMERA);
-        this.setState({
-            hasCameraPermission: status === 'granted',
-        });
-    };
-
     _handleBarCodeRead = ({ type, data }) => {
-        const {state, goBack} = this.props.navigation
         Alert.alert(
             'Scan successful!',
             JSON.stringify(data)
@@ -38,7 +33,13 @@ export class ModalScreen extends React.Component {
             issuer
         };
 
-        state.params.add(obj);
+        if(_.some(this.props.listing, obj )){
+            alert(`Sorry the entry ${obj.label} already exist`)
+
+        } else {
+            this.props.dispatch({ type: 'ADD', data: obj })
+
+        }
         this.props.navigation.goBack();
 
     };
@@ -60,6 +61,16 @@ export class ModalScreen extends React.Component {
         );
     }
 }
+
+
+
+function mapStateToProps(state) {
+    return {
+        listing: state.listing
+    }
+}
+
+export default connect(mapStateToProps)(ModalScreen)
 
 const styles = StyleSheet.create({
     container: {

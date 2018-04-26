@@ -1,20 +1,15 @@
 import React from 'react';
 import {StyleSheet, Text, View, TouchableOpacity, ScrollView, AsyncStorage} from 'react-native';
 import  _  from 'lodash';
+import { connect } from 'react-redux'
+import ModalScreen from './screen'
 
 
-export class MainStack extends React.Component {
+class MainStack extends React.Component {
 
     static navigationOptions = {
         title: 'Authentificator',
     };
-
-    constructor() {
-        super();
-        this.state = {
-            listing: []
-        };
-    }
 
     async componentWillMount(){
         try {
@@ -28,7 +23,6 @@ export class MainStack extends React.Component {
         }
     }
 
-
     async pushItem(list){
         try {
             alert(list);
@@ -36,23 +30,6 @@ export class MainStack extends React.Component {
         } catch (error) {
         }
     }
-
-    _add = obj => {
-        if(_.some(this.state.listing, obj )){
-            alert(`Sorry the entry ${obj.label} already exist`)
-
-        } else {
-            this.setState({listing:[...this.state.listing, obj]}, () => {
-                list = JSON.stringify(this.state.listing)
-                console.log(list);
-                this.pushItem(list)
-
-            });
-
-
-        }
-
-    };
 
     async removeItem(){
         try {
@@ -62,20 +39,18 @@ export class MainStack extends React.Component {
     }
 
     clear = () => {
-        this.setState({listing:[]});
+       this.props.dispatch({ type: 'CLEAR' })
         this.removeItem();
         console.log("clear");
     };
 
 
     render() {
-        const list = this.state.listing.map((item, id) => {
+        const list = this.props.listing.map((item, id) => {
             return (
                 <View key={id}>
                     <Text style={styles.ListText}>
-                        {item.label}
-                        {item.secret}
-                        {item.issuer}
+                        {item.issuer} {item.label} {item.secret}
                     </Text>
                 </View>
             )
@@ -85,16 +60,11 @@ export class MainStack extends React.Component {
             <View style={styles.container}>
                 <TouchableOpacity
                     style={styles.buttonAdd}
-                    onPress={() =>
-                        this.props.navigation.navigate("MyModal", {
-                            add: this._add
-                        })
-                    }
-                >
+                    onPress={() => this.props.navigation.navigate("MyModal")}>
                     <Text> ADD </Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.buttonClear} onPress={this.clear}>
-                    <Text> CLEAR</Text>
+                    <Text> CLEAR </Text>
                 </TouchableOpacity>
                 <ScrollView>{list}</ScrollView>
 
@@ -133,6 +103,15 @@ const styles = StyleSheet.create({
         color: '#000000',
         backgroundColor: "#ffff66",
         marginTop: 10,
-        padding: 10
+        padding: 10,
+        margin: 10
     }
 });
+
+function mapStateToProps(state) {
+    return {
+        listing: state.listing
+    }
+}
+
+export default connect(mapStateToProps)(MainStack)
