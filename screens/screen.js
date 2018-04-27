@@ -1,5 +1,5 @@
 import React from 'react';
-import {Platform, StyleSheet, Text, View, Alert, head, Button} from 'react-native';
+import {AsyncStorage, Platform, StyleSheet, Text, View, Alert, head, Button} from 'react-native';
 import {Constants, BarCodeScanner, Permissions} from 'expo';
 import {connect} from 'react-redux';
 import  _  from 'lodash';
@@ -40,7 +40,22 @@ class ModalScreen extends React.Component {
                 alert(`Sorry the entry ${obj.label} already exist`)
 
             } else {
-                this.props.dispatch({type: 'ADD', data: obj})
+                const updated_list = [...this.props.listing, obj];
+
+                try {
+                    const str = JSON.stringify(updated_list)
+                    AsyncStorage.setItem('@authentificator::listing', str).then(() => {
+                        this.props.dispatch({
+                            type: 'ADD',
+                            data: {
+                                list: updated_list
+                            }
+                        })
+                    })
+                }
+                catch (error){
+                    console.log('OH MY GOD')
+                }
             }
 
         }

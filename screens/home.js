@@ -1,8 +1,19 @@
 import React from 'react';
-import { Platform, StyleSheet, Text, View, TouchableOpacity, ScrollView, AsyncStorage } from 'react-native';
+import {
+    TouchableNativeFeedback,
+    Alert,
+    Platform,
+    StyleSheet,
+    Text,
+    View,
+    TouchableOpacity,
+    ScrollView,
+    AsyncStorage
+} from 'react-native';
 import  _  from 'lodash';
 import {connect} from 'react-redux'
 import ModalScreen from './screen'
+import TOTP from '../mlib/totp'
 
 
 class MainStack extends React.Component {
@@ -11,50 +22,88 @@ class MainStack extends React.Component {
         title: 'Authentificator',
     };
 
+
     async componentWillMount() {
         try {
-            const result = await AsyncStorage.getItem('listing')
-            if (result) {
-                list = JSON.parse(result);
-                this.setState({listing: JSON.parse(result)});
-            }
-        } catch (e) {
-            console.log(e);
-        }
-    }
-
-    async pushItem(list) {
-        try {
-            alert(list);
-            await AsyncStorage.setItem('listing', list);
+            AsyncStorage.getItem('@authentificator::listing').then((result) => {
+                    if (result) {
+                        list = JSON.parse(result)
+                        this.props.dispatch({
+                            type: 'QRCODE_INIT', data: {list}
+                        })
+                    }
+                }
+            )
         } catch (error) {
+            console.log(error);
         }
+
     }
 
     async removeItem() {
         try {
-            await AsyncStorage.removeItem('listing');
+            await AsyncStorage.removeItem('@authentificator::listing');
         } catch (error) {
         }
     }
 
+
     clear = () => {
-        this.props.dispatch({type: 'CLEAR'})
+        this.props.dispatch({type: 'CLEAR'});
         this.removeItem();
         console.log("clear");
     };
 
+    clearOne = id => {
+        list = [...this.props.listing]
+        list.splice(id, 1);
+        const str = JSON.stringify(list);
+
+        Alert.alert(
+            'Deleted !!',
+            'Are you sure delete entry ??',
+            [
+                {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                {
+                    text: 'OK', onPress: () => AsyncStorage.setItem('@authentificator::listing', str).then(() => {
+                    this.props.dispatch({
+                        type: 'QRCODE_INIT',
+                        data: {
+                            list: list
+                        }
+                    })
+                })
+                },
+            ],
+            {cancelable: false}
+        )
+    };
+
 
     render() {
-        const list = this.props.listing.map((item, id) => {
+        if (this.props.listing.length === 0) {
             return (
-                <View key={id}>
+                <View style={styles.container}>
+                    <Text style={styles.textTitle}>Première entrée sur l'application</Text>
+                    <TouchableOpacity
+                        style={styles.buttonAdd}
+                        onPress={() => this.props.navigation.navigate("MyModal")}>
+                        <Text> ADD </Text>
+                    </TouchableOpacity>
+                </View>
+            );
+        }
+        const list = this.props.listing.map((item, id) => {
+
+            return (
+                <TouchableOpacity onLongPress={() => this.clearOne(id)} key={id}>
+
                     <Text style={styles.ListText}>
                         {item.issuer} {item.label} {item.secret}
                     </Text>
-                </View>
+                </TouchableOpacity>
             )
-        })
+        });
 
         return (
             <View style={styles.container}>
@@ -67,7 +116,6 @@ class MainStack extends React.Component {
                     <Text> CLEAR </Text>
                 </TouchableOpacity>
                 <ScrollView>{list}</ScrollView>
-
 
             </View>
         );
@@ -106,6 +154,10 @@ const styles = StyleSheet.create({
         marginTop: 10,
         padding: 10,
         margin: 10
+    },
+    textTitle: {
+        textAlign: "center",
+        fontSize: 20
     }
 });
 

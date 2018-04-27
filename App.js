@@ -1,5 +1,5 @@
 import React from 'react';
-import { Platform, StyleSheet, Text, View, TouchableOpacity, head } from 'react-native';
+import { Platform, StyleSheet, Text, View, TouchableOpacity, AsyncStorage } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 import  MainStack  from './screens/home';
 import  ModalScreen  from './screens/screen';
@@ -13,9 +13,17 @@ const initial_state = {
 
 function reducer(prev_state = initial_state, action) {
     switch (action.type) {
+        case 'QRCODE_INIT':
+            return Object.assign({}, prev_state, {
+                listing: action.data.list
+            });
+        case 'CLEAR_ONE':
+            return Object.assign({}, prev_state, {
+                listing: action.data.list
+            });
         case 'ADD':
             return Object.assign({}, prev_state, {
-                listing: [...prev_state.listing, action.data]
+                listing: action.data.list
             });
         case 'CLEAR' :
             return Object.assign({}, prev_state, {
@@ -25,20 +33,6 @@ function reducer(prev_state = initial_state, action) {
             return prev_state
     }
 }
-
-/*const persistedState = localStorage.getItem('listing') ? JSON.parse(localStorage.getItem('listing')) : {}
-
-const store = createStore(
-    reducer,
-    persistedState,
-);
-
-store.subscribe(()=>{
-    localStorage.setItem('listing', JSON.stringify(store.getState()))
-});*/
-
-
-
 
 const store = createStore(reducer)
 
