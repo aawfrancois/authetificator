@@ -1,5 +1,4 @@
 import React from 'react';
-import { Platform, StyleSheet, Text, View, TouchableOpacity, AsyncStorage } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 import  MainStack  from './screens/home';
 import  ModalScreen  from './screens/screen';

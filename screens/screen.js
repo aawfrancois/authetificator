@@ -53,7 +53,7 @@ class ModalScreen extends React.Component {
                         })
                     })
                 }
-                catch (error){
+                catch (error) {
                     console.log('OH MY GOD')
                 }
             }

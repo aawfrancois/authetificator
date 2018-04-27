@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-    TouchableNativeFeedback,
     Alert,
     Platform,
     StyleSheet,
@@ -10,9 +9,7 @@ import {
     ScrollView,
     AsyncStorage
 } from 'react-native';
-import  _  from 'lodash';
 import {connect} from 'react-redux'
-import ModalScreen from './screen'
 import TOTP from '../mlib/totp'
 
 
@@ -20,8 +17,14 @@ class MainStack extends React.Component {
 
     static navigationOptions = {
         title: 'Authentificator',
+        headerStyle: {
+            backgroundColor: '#f4511e',
+        },
     };
 
+    state = {
+        timer: null
+    };
 
     async componentWillMount() {
         try {
@@ -37,7 +40,6 @@ class MainStack extends React.Component {
         } catch (error) {
             console.log(error);
         }
-
     }
 
     async removeItem() {
@@ -79,12 +81,24 @@ class MainStack extends React.Component {
         )
     };
 
+    componentDidUpdate() {
+        const duration = 5000;
+        if (!this.state.timer) {
+            this.ret = setInterval(() => {
+                this.setState({timer: this.state.timer + duration})
+            }, duration)
+        }
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.ret)
+    }
 
     render() {
         if (this.props.listing.length === 0) {
             return (
                 <View style={styles.container}>
-                    <Text style={styles.textTitle}>Première entrée sur l'application</Text>
+                    <Text style={styles.textTitle}>First entry in App</Text>
                     <TouchableOpacity
                         style={styles.buttonAdd}
                         onPress={() => this.props.navigation.navigate("MyModal")}>
@@ -95,12 +109,14 @@ class MainStack extends React.Component {
         }
         const list = this.props.listing.map((item, id) => {
 
-            return (
-                <TouchableOpacity onLongPress={() => this.clearOne(id)} key={id}>
+            const token = new TOTP(item.secret, 5).generate()
 
-                    <Text style={styles.ListText}>
-                        {item.issuer} {item.label} {item.secret}
-                    </Text>
+            return (
+                <TouchableOpacity style={styles.items} onLongPress={() => this.clearOne(id)} key={id}>
+                    <Text style={styles.item}>{item.issuer}</Text>
+                    <Text style={{fontWeight: 'bold', width: '100%', fontSize: 30}}>{token}</Text>
+                    <Text style={styles.item}>{item.label}</Text>
+                    <Text style={styles.item}>{item.secret}</Text>
                 </TouchableOpacity>
             )
         });
@@ -158,6 +174,15 @@ const styles = StyleSheet.create({
     textTitle: {
         textAlign: "center",
         fontSize: 20
+    },
+    item: {
+        width: '100%'
+    },
+    items: {
+        marginTop: 10,
+        backgroundColor: "#ffd700",
+        padding: 20,
+        width: '90%'
     }
 });
 
