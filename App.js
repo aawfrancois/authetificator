@@ -1,9 +1,9 @@
 import React from 'react';
-import { StackNavigator } from 'react-navigation';
+import {StackNavigator} from 'react-navigation';
 import  MainStack  from './screens/home';
 import  ModalScreen  from './screens/screen';
-import { Provider } from 'react-redux'
-import { createStore } from 'redux'
+import {Provider} from 'react-redux'
+import {createStore} from 'redux'
 
 
 const initial_state = {

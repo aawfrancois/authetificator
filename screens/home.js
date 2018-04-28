@@ -46,14 +46,40 @@ class MainStack extends React.Component {
         try {
             await AsyncStorage.removeItem('@authentificator::listing');
         } catch (error) {
+            Alert.alert(
+                'Error !!!',
+                'Error, please try again!!',
+                [
+                    {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                    {text: 'OK', onPress: () => console.log('Ok Pressed')},
+                ],
+                {cancelable: false}
+            )
         }
     }
 
 
     clear = () => {
-        this.props.dispatch({type: 'CLEAR'});
-        this.removeItem();
-        console.log("clear");
+
+        Alert.alert(
+            'Deleted ALL!!',
+            'Are you sure delete all entry ??',
+            [
+                {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                {
+                    text: 'OK', onPress: () => AsyncStorage.removeItem('@authentificator::listing').then(() => {
+                    this.props.dispatch({
+                        type: 'CLEAR',
+                    })
+                    this.removeItem();
+                })
+
+                },
+            ],
+            {cancelable: false}
+        )
+
+
     };
 
     clearOne = id => {
@@ -82,7 +108,7 @@ class MainStack extends React.Component {
     };
 
     componentDidUpdate() {
-        const duration = 5000;
+        const duration = 30000;
         if (!this.state.timer) {
             this.ret = setInterval(() => {
                 this.setState({timer: this.state.timer + duration})
@@ -109,7 +135,7 @@ class MainStack extends React.Component {
         }
         const list = this.props.listing.map((item, id) => {
 
-            const token = new TOTP(item.secret, 5).generate()
+            const token = new TOTP(item.secret, 30).generate()
 
             return (
                 <TouchableOpacity style={styles.items} onLongPress={() => this.clearOne(id)} key={id}>
